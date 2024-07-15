@@ -13,7 +13,6 @@ export const POST = async (request: NextRequest) => {
     if (file instanceof File) {
       // await fs.mkdir("public/imguploads", { recursive: true });
       // const filePath = `public/imguploads/${crypto.randomUUID()}-${file.name}`;
-      await fs.mkdir("tmp", { recursive: true });
       const filePath = `tmp/${crypto.randomUUID()}-${file.name}`;
       await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
       console.log(`Uploaded file path: ${filePath}`);
