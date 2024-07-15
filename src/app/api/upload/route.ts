@@ -3,16 +3,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
   const data = await request.formData();
-  const file: File | null = data.get("file") as unknown as File;
+  const files = data.getAll("files");
 
-  if (!file) {
-    return NextResponse.json({ success: false });
+  if (files.length === 0) {
+    return NextResponse.json({ success: false, message: "No files provided" });
   }
 
-  await fs.mkdir("public/imguploads", { recursive: true });
-  const filePath = `public/imguploads/${crypto.randomUUID()}-${file.name}`;
-  await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+  const uploadPromises = files.map(async (file) => {
+    if (file instanceof File) {
+      await fs.mkdir("public/imguploads", { recursive: true });
+      const filePath = `public/imguploads/${crypto.randomUUID()}-${file.name}`;
+      await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+      console.log(`Uploaded file path: ${filePath}`);
+    }
+  });
 
-  console.log(`Uploaded file path: ${filePath}`);
+  await Promise.all(uploadPromises);
+
   return NextResponse.json({ success: true });
 };
